@@ -2,6 +2,9 @@ import fastGlob from 'fast-glob';
 // TODO: replace fastGlob to fs.readDir if possible
 import { importFiles } from './utils/promises.js';
 
+// TODO: support many libraries not only express
+// TODO: allow to manipulate this
+// TOOD: add error handler
 const controllerWrapper = handler => {
 	return async (req, res, next) => {
 		const { params, query } = req;
