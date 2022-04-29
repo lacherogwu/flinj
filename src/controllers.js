@@ -12,7 +12,19 @@ const controllerWrapper = handler => {
 		const ctx = { params, query };
 		try {
 			const data = await handler(ctx);
-			res.status(200).json({ success: true, data });
+			const { status = 200, headers = {} } = data || {};
+			let { body = {} } = data || {};
+
+			// TODO: allow to manipulate response object
+			if (typeof body === 'object') {
+				const parsedBody = { success: true };
+				if (Object.keys(body).length > 0) {
+					parsedBody.data = body;
+				}
+				body = parsedBody;
+			}
+
+			res.status(status).set(headers).send(body);
 		} catch (err) {
 			res.status(500).json({ success: false, message: err.message });
 		}
