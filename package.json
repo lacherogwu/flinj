@@ -1,0 +1,21 @@
+{
+	"name": "flinj",
+	"version": "0.0.0",
+	"description": "Easy REST API library",
+	"main": "src/main.js",
+	"bin": "src/cli/main.js",
+	"scripts": {
+		"build": "rollup -c"
+	},
+	"keywords": [],
+	"author": "LacheRo",
+	"license": "MIT",
+	"type": "module",
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"fast-glob": "^3.2.11",
+		"nodemon": "^2.0.16"
+	}
+}
