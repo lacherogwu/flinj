@@ -4,7 +4,8 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "flinj dev",
+		"dev": "nodemon . --watch ../src --watch .",
+		"flinj:dev": "flinj dev",
 		"start": "flinj start"
 	},
 	"keywords": [],

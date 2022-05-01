@@ -1,6 +1,7 @@
 import fastGlob from 'fast-glob';
 // TODO: replace fastGlob to fs.readDir if possible
 import { importFiles } from './utils/promises.js';
+import { attachMiddlewares } from './middlewares.js';
 
 // TODO: support many libraries not only express
 // TODO: allow to manipulate this
@@ -8,7 +9,6 @@ import { importFiles } from './utils/promises.js';
 const controllerWrapper = handler => {
 	return async (req, res, next) => {
 		const { params, query } = req;
-
 		const ctx = { params, query };
 		try {
 			const data = await handler(ctx);
@@ -31,6 +31,7 @@ const controllerWrapper = handler => {
 	};
 };
 
+const HTTP_METHODS = ['get', 'post', 'put', 'update', 'delete'];
 export const generateControllers = async () => {
 	const files = await fastGlob('controllers/**/*.js', { absolute: true });
 	const resolvedFiles = await importFiles(files);
@@ -46,11 +47,16 @@ export const generateControllers = async () => {
 			name = name.join('/');
 			if (method == 'del') method = 'delete';
 			if (name.includes('$')) name = name.replace(/\$/g, ':');
+			if (!HTTP_METHODS.includes(method)) return;
+
+			const { middlewares: middlewaresList } = controllerFunctions;
+			const middlewares = attachMiddlewares(middlewaresList);
 
 			const object = {
 				method,
 				name: `${routePath}/${name}`,
 				handler: controllerWrapper(value),
+				middlewares,
 			};
 			acc.push(object);
 		});

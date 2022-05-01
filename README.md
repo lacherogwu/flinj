@@ -12,3 +12,4 @@ The fasest way to build REST API
 - [ ] Add error handling
 - [ ] Allow middlewares (global and route specific)
 - [ ] Allow to manipulate the response (in the controller wrapper)
+- [ ] Support cookies
