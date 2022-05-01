@@ -31,7 +31,7 @@ const controllerWrapper = handler => {
 	};
 };
 
-const HTTP_METHODS = ['get', 'post', 'put', 'update', 'delete'];
+const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 export const generateControllers = async () => {
 	const files = await fastGlob('controllers/**/*.js', { absolute: true });
 	const resolvedFiles = await importFiles(files);
