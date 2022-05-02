@@ -1,4 +1,4 @@
-export default (req, res, next) => {
+export default ctx => {
+	console.log(ctx);
 	console.log('auth middleware');
-	next();
 };

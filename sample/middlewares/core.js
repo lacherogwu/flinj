@@ -1,4 +1,3 @@
-export default (req, res, next) => {
+export default ctx => {
 	console.log('Look at this middleware');
-	next();
 };

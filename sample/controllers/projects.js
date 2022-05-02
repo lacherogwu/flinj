@@ -4,6 +4,7 @@ export const get_$projectId_workspace_$workspaceId = ctx => {
 };
 
 export const get_$id = ctx => {
+	console.log(ctx);
 	return {
 		// status: 303,
 		// headers: {
