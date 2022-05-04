@@ -22,4 +22,4 @@ export const del = ctx => {
 	};
 };
 
-export const middlewares = ['get,post:a', 'post:b', 'c', 'del:d'];
+export const middlewares = ['get,post:a', 'post:b', 'get:c', 'del:d'];

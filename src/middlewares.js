@@ -28,6 +28,11 @@ const getMiddlewares = async () => {
 };
 
 const availableMiddlewares = await getMiddlewares();
+const globalMiddlewares = [];
+availableMiddlewares.forEach((value, key) => {
+	if (!key.endsWith('.global')) return;
+	globalMiddlewares.push(value);
+});
 
 /**
  *
@@ -36,7 +41,7 @@ const availableMiddlewares = await getMiddlewares();
  * @returns {Array}
  */
 export const attachMiddlewares = (controllerMiddlewaresList = [], key) => {
-	const middlewares = [];
+	const middlewares = [...globalMiddlewares];
 	controllerMiddlewaresList.forEach(item => {
 		let name = item;
 		if (item.includes(':')) {
