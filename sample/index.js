@@ -3,7 +3,12 @@ import { generateControllers } from 'flinj';
 
 const app = express();
 
+// app.get('/something/*', (req, res, next) => {
+// 	console.log(req.params);
+// 	res.json({ success: true });
+// });
 const controllers = await generateControllers();
+
 controllers.forEach(item => {
 	const { method, route, handler, middlewares } = item;
 	app[method](route, ...middlewares, handler);

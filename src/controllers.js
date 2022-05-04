@@ -33,6 +33,8 @@ const controllerWrapper = handler => {
 
 /** @param {string} string */
 const hasDynamicArg = string => /\[[a-z]+\]/gi.test(string);
+/** @param {string} string */
+const isCatchAll = string => string.includes('[...]');
 
 const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 export const generateControllers = async () => {
@@ -46,6 +48,9 @@ export const generateControllers = async () => {
 		if (route.endsWith('index')) route = route.slice(0, -5);
 		if (hasDynamicArg(route)) {
 			route = route.replace(/\[/g, ':').replace(/\]/g, '');
+		}
+		if (isCatchAll(route)) {
+			route = route.replace('[...]', '*');
 		}
 
 		Object.entries(controllerFunctions).forEach(([key, value]) => {
