@@ -31,6 +31,9 @@ const controllerWrapper = handler => {
 	};
 };
 
+/** @param {string} string */
+const hasDynamicArg = string => /\[[a-z]+\]/gi.test(string);
+
 const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 export const generateControllers = async () => {
 	const files = await fastGlob('controllers/**/*.js', { absolute: true });
@@ -38,15 +41,16 @@ export const generateControllers = async () => {
 
 	const controllers = files.reduce((acc, file, i) => {
 		const controllerFunctions = resolvedFiles[i];
-		let [, routePath] = file.split('controllers');
-		routePath = routePath.replace('.js', '');
-		if (routePath.endsWith('/index')) routePath = routePath.slice(0, -6);
+		let [, route] = file.split('controllers');
+		route = route.replace('.js', '');
+		if (route.endsWith('index')) route = route.slice(0, -5);
+		if (hasDynamicArg(route)) {
+			route = route.replace(/\[/g, ':').replace(/\]/g, '');
+		}
 
 		Object.entries(controllerFunctions).forEach(([key, value]) => {
-			let [method, ...name] = key.split('_');
-			name = name.join('/');
-			if (method == 'del') method = 'delete';
-			if (name.includes('$')) name = name.replace(/\$/g, ':');
+			let method = key;
+			if (method === 'del') method = 'delete';
 			if (!HTTP_METHODS.includes(method)) return;
 
 			const { middlewares: middlewaresList } = controllerFunctions;
@@ -54,7 +58,7 @@ export const generateControllers = async () => {
 
 			const object = {
 				method,
-				name: `${routePath}/${name}`,
+				route,
 				handler: controllerWrapper(value),
 				middlewares,
 			};
@@ -63,6 +67,5 @@ export const generateControllers = async () => {
 
 		return acc;
 	}, []);
-
 	return controllers;
 };

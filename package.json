@@ -7,7 +7,22 @@
 	"scripts": {
 		"build": "rollup -c"
 	},
-	"keywords": [],
+	"keywords": [
+		"express",
+		"framework",
+		"sinatra",
+		"web",
+		"http",
+		"rest",
+		"restful",
+		"router",
+		"app",
+		"api",
+		"open",
+		"hapi",
+		"application",
+		"middleware"
+	],
 	"author": "LacheRo",
 	"license": "MIT",
 	"type": "module",
