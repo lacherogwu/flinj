@@ -59,7 +59,8 @@ export const generateControllers = async () => {
 			if (!HTTP_METHODS.includes(method)) return;
 
 			const { middlewares: middlewaresList } = controllerFunctions;
-			const middlewares = attachMiddlewares(middlewaresList);
+			// TODO: remove → console.log(`${method.toUpperCase()} ${route}`);
+			const middlewares = attachMiddlewares(middlewaresList, key);
 
 			const object = {
 				method,

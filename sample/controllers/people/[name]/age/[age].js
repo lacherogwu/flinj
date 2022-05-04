@@ -7,3 +7,5 @@ export const get = ctx => {
 		},
 	};
 };
+
+export const middlewares = ['core'];

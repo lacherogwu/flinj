@@ -29,10 +29,23 @@ const getMiddlewares = async () => {
 
 const availableMiddlewares = await getMiddlewares();
 
-/** @param {Array} controllerMiddlewaresList */
-export const attachMiddlewares = (controllerMiddlewaresList = []) => {
+/**
+ *
+ * @param {[string]} controllerMiddlewaresList
+ * @param {string} key
+ * @returns {Array}
+ */
+export const attachMiddlewares = (controllerMiddlewaresList = [], key) => {
 	const middlewares = [];
-	controllerMiddlewaresList.forEach(name => {
+	controllerMiddlewaresList.forEach(item => {
+		let name = item;
+		if (item.includes(':')) {
+			let split = item.split(':');
+			name = split[1];
+			let methods = split[0].split(',');
+			if (!methods.includes(key)) return;
+		}
+
 		if (!availableMiddlewares.has(name)) return;
 		middlewares.push(availableMiddlewares.get(name));
 	});
