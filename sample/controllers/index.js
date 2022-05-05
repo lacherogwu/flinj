@@ -11,3 +11,5 @@ export const del = () => ({
 		hey: true,
 	},
 });
+
+export const middlewares = ['get:auth'];

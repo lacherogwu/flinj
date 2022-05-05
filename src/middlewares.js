@@ -6,9 +6,13 @@ const middlewareWrapper = handler => {
 		const { params, query } = req;
 		const ctx = { params, query };
 		try {
-			await handler(ctx);
-			next();
+			const data = await handler(ctx);
+			if (!data) return next();
+
+			const { status = 200, body, headers = {} } = data;
+			res.status(status).set(headers).send(body);
 		} catch (err) {
+			// TODO: handle errors
 			console.log(err);
 		}
 	};
