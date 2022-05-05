@@ -1,9 +1,10 @@
+import { response } from '../utils/index.js';
+
 export const get = ctx => {
-	return {
-		body: {
-			hello: true,
-		},
-	};
+	return response({
+		thisIsCool: true,
+		evenMoreCool: 'yes',
+	});
 };
 
 export const post = ctx => {

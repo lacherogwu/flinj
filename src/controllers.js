@@ -4,7 +4,7 @@ import { importFiles } from './utils/promises.js';
 import { attachMiddlewares } from './middlewares.js';
 
 // TODO: support many libraries not only express
-// TODO: allow to manipulate this
+// TODO: allow to manipulate this (interceptors)
 // TOOD: add error handler
 const controllerWrapper = handler => {
 	return async (req, res, next) => {
@@ -36,7 +36,7 @@ const hasDynamicArg = string => /\[[a-z]+\]/gi.test(string);
 /** @param {string} string */
 const isCatchAll = string => string.includes('[...]');
 
-const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete'];
+const HTTP_METHODS = ['get', 'post', 'put', 'delete'];
 export const generateControllers = async () => {
 	const files = await fastGlob('controllers/**/*.js', { absolute: true });
 	const resolvedFiles = await importFiles(files);
@@ -73,5 +73,6 @@ export const generateControllers = async () => {
 
 		return acc;
 	}, []);
+
 	return controllers;
 };

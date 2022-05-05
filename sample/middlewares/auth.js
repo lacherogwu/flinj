@@ -11,6 +11,7 @@ const redirect = location => ({
 		location,
 	},
 });
+
 export default ({ query }) => {
 	if (query.error === 'true') {
 		// throw new AppError('You are not allowed to use this app', 404);
