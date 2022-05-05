@@ -31,6 +31,10 @@
 		"middleware"
 	],
 	"author": "LacheRo",
+	"repository": "lacherogwu/flinj",
+	"bugs": {
+		"url": "https://github.com/lacherogwu/flinj/issues"
+	},
 	"license": "MIT",
 	"type": "module",
 	"publishConfig": {
