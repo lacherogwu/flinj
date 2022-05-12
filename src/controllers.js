@@ -8,8 +8,9 @@ import { attachMiddlewares } from './middlewares.js';
 // TOOD: add error handler
 const controllerWrapper = handler => {
 	return async (req, res, next) => {
-		const { params, query } = req;
-		const ctx = { params, query };
+		const { params, query, stuff = {} } = req;
+
+		const ctx = { params, query, stuff };
 		try {
 			const data = await handler(ctx);
 			const { status = 200, headers = {} } = data || {};

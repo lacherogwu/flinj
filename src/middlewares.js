@@ -3,8 +3,12 @@ import { importFiles } from './utils/promises.js';
 
 const middlewareWrapper = handler => {
 	return async (req, res, next) => {
-		const { params, query } = req;
-		const ctx = { params, query };
+		if (!req.stuff) {
+			req.stuff = {};
+		}
+
+		const { params, query, stuff } = req;
+		const ctx = { params, query, stuff };
 		try {
 			const data = await handler(ctx);
 			if (!data) return next();

@@ -1,5 +1,5 @@
 import express from 'express';
-import { generateControllers } from 'flinj';
+import { generateControllers } from '../src/main.js';
 
 const app = express();
 
