@@ -1,5 +1,8 @@
 # Flinj
 
+| :exclamation: This is an experimental project. You definitely shouldn't try and use it, yet. |
+| -------------------------------------------------------------------------------------------- |
+
 The fasest way to build REST API
 
 ![Flinching](https://media.giphy.com/media/TpXiNmXLdpOaEENYci/giphy.gif)
