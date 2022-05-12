@@ -1,16 +1,11 @@
 import fastGlob from 'fast-glob';
 import { importFiles } from './utils/promises.js';
+import { createCtx } from './utils/request.js';
 
 const middlewareWrapper = handler => {
 	return async (req, res, next) => {
-		if (!req.stuff) {
-			req.stuff = {};
-		}
-
-		const { params, query, stuff } = req;
-		const ctx = { params, query, stuff };
 		try {
-			const data = await handler(ctx);
+			const data = await handler(createCtx(req));
 			if (!data) return next();
 
 			const { status = 200, body, headers = {} } = data;

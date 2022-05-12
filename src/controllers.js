@@ -2,17 +2,15 @@ import fastGlob from 'fast-glob';
 // TODO: replace fastGlob to fs.readDir if possible
 import { importFiles } from './utils/promises.js';
 import { attachMiddlewares } from './middlewares.js';
+import { createCtx } from './utils/request.js';
 
 // TODO: support many libraries not only express
 // TODO: allow to manipulate this (interceptors)
 // TOOD: add error handler
 const controllerWrapper = handler => {
 	return async (req, res, next) => {
-		const { params, query, stuff = {} } = req;
-
-		const ctx = { params, query, stuff };
 		try {
-			const data = await handler(ctx);
+			const data = await handler(createCtx(req));
 			const { status = 200, headers = {} } = data || {};
 			let { body = {} } = data || {};
 
