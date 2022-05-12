@@ -4,9 +4,7 @@ import { importFiles } from './utils/promises.js';
 import { attachMiddlewares, initMiddlewares } from './middlewares.js';
 import { createCtx } from './utils/request.js';
 
-// TODO: support many libraries not only express
 // TODO: allow to manipulate this (interceptors)
-// TOOD: add error handler
 const controllerWrapper = handler => {
 	return async (req, res, next) => {
 		try {
@@ -25,7 +23,7 @@ const controllerWrapper = handler => {
 
 			res.status(status).set(headers).send(body);
 		} catch (err) {
-			res.status(500).json({ success: false, message: err.message });
+			next(err);
 		}
 	};
 };

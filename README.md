@@ -14,7 +14,7 @@ The fasest way to build REST API
   - [ ] koa
   - [ ] fastify
   - [ ] and more...
-- [ ] Add error handling
+- [x] Add error handling
 - [x] Allow middlewares (global and route specific)
 - [ ] Allow to manipulate the response (in the controller wrapper)
 - [ ] Support cookies

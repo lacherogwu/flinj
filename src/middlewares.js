@@ -9,8 +9,7 @@ const middlewareWrapper = handler => {
 			const { status = 200, body, headers = {} } = data;
 			res.status(status).set(headers).send(body);
 		} catch (err) {
-			// TODO: handle errors
-			console.log(err);
+			next(err);
 		}
 	};
 };

@@ -1,11 +1,5 @@
-import { AppError } from '../../src/main.js';
-console.log('controller', AppError);
-
 export const get = ctx => {
 	console.log('GET / route');
-	// console.log(ctx);
-	const { userId } = ctx.stuff;
-	console.log(`userId: ${userId} is accessing`);
 	return {
 		status: 404,
 		body: {
@@ -21,4 +15,4 @@ export const del = () => ({
 	},
 });
 
-export const middlewares = ['get:auth', 'get:second', 'get:core/moses'];
+export const middlewares = ['auth'];

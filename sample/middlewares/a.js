@@ -1,5 +1,3 @@
-import { AppError } from '../../src/main.js';
-console.log('middleware', AppError);
 export default ({ stuff }) => {
 	console.log('a middleware');
 	console.log(stuff);

@@ -1,3 +1,4 @@
+import { AppError } from '../../src/main.js';
 const unAuthorized = () => ({
 	status: 401,
 	body: {
@@ -14,7 +15,16 @@ const redirect = location => ({
 
 export default ctx => {
 	if (ctx.query.error === 'true') {
-		// throw new AppError('You are not allowed to use this app', 404);
+		const err = new Error();
+		err.isAxiosError = true;
+		err.message = 'cool';
+		err.response = {
+			status: 401,
+			data: {
+				item: 'xxx',
+			},
+		};
+		throw err;
 		return unAuthorized();
 	} else if (ctx.query.error === 'redirect-me') {
 		return redirect('/workspaces/41');
