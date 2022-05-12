@@ -21,6 +21,6 @@ export default ctx => {
 	}
 
 	console.log('auth middleware');
-	console.log(ctx);
+	// console.log(ctx);
 	ctx.query.something = 'cool';
 };

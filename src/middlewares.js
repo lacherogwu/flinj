@@ -1,5 +1,3 @@
-import fastGlob from 'fast-glob';
-import { importFiles } from './utils/promises.js';
 import { createCtx } from './utils/request.js';
 
 const middlewareWrapper = handler => {
@@ -17,25 +15,29 @@ const middlewareWrapper = handler => {
 	};
 };
 
-const getMiddlewares = async () => {
-	const files = await fastGlob('middlewares/*.js', { absolute: true });
-	const resolvedFiles = await importFiles(files);
+let availableMiddlewares = new Map();
+let globalMiddlewares = [];
 
-	return files.reduce((acc, file, i) => {
-		const fileName = file.split('/').pop().replace('.js', '');
+const getAvailableMiddlewares = (files, resolvedFiles) =>
+	files.reduce((acc, file, i) => {
+		const fileName = file.split('middlewares/').pop().replace('.js', '');
 		const handler = resolvedFiles[i].default;
 		acc.set(fileName, middlewareWrapper(handler));
 
 		return acc;
 	}, new Map());
+
+const addGlobalMiddlewares = () => {
+	availableMiddlewares.forEach((value, key) => {
+		if (!key.endsWith('.global')) return;
+		globalMiddlewares.push(value);
+	});
 };
 
-const availableMiddlewares = await getMiddlewares();
-const globalMiddlewares = [];
-availableMiddlewares.forEach((value, key) => {
-	if (!key.endsWith('.global')) return;
-	globalMiddlewares.push(value);
-});
+export const initMiddlewares = (files, resolvedFiles) => {
+	availableMiddlewares = getAvailableMiddlewares(files, resolvedFiles);
+	addGlobalMiddlewares();
+};
 
 /**
  *

@@ -1,5 +1,3 @@
-import { terser } from 'rollup-plugin-terser';
-
 export default {
 	input: 'src/main.js',
 	output: [
@@ -7,11 +5,10 @@ export default {
 			file: 'lib/main.mjs',
 			format: 'esm',
 		},
-		// {
-		// 	file: 'lib/main.cjs',
-		// 	format: 'cjs',
-		// },
+		{
+			file: 'lib/main.cjs',
+			format: 'cjs',
+		},
 	],
 	external: ['fast-glob'],
-	plugins: [terser()],
 };

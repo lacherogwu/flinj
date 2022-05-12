@@ -1,7 +1,7 @@
 import fastGlob from 'fast-glob';
 // TODO: replace fastGlob to fs.readDir if possible
 import { importFiles } from './utils/promises.js';
-import { attachMiddlewares } from './middlewares.js';
+import { attachMiddlewares, initMiddlewares } from './middlewares.js';
 import { createCtx } from './utils/request.js';
 
 // TODO: support many libraries not only express
@@ -37,11 +37,16 @@ const isCatchAll = string => string.includes('[...]');
 
 const HTTP_METHODS = ['get', 'post', 'put', 'delete'];
 export const generateControllers = async () => {
-	const files = await fastGlob('controllers/**/*.js', { absolute: true });
-	const resolvedFiles = await importFiles(files);
+	const fileListPromises = [fastGlob('controllers/**/*.js', { absolute: true }), fastGlob('middlewares/**/*.js', { absolute: true })];
+	const [controllersFileList, middlewaresFileList] = await Promise.all(fileListPromises);
 
-	const controllers = files.reduce((acc, file, i) => {
-		const controllerFunctions = resolvedFiles[i];
+	const resolvedFilesPromises = [importFiles(controllersFileList), importFiles(middlewaresFileList)];
+	const [controllersResolvedFiles, middlewaresResolvedFiles] = await Promise.all(resolvedFilesPromises);
+
+	initMiddlewares(middlewaresFileList, middlewaresResolvedFiles);
+
+	const controllers = controllersFileList.reduce((acc, file, i) => {
+		const controllerFunctions = controllersResolvedFiles[i];
 		let [, route] = file.split('controllers');
 		route = route.replace('.js', '');
 		if (route.endsWith('index')) route = route.slice(0, -5);
