@@ -34,6 +34,10 @@ const hasDynamicArg = string => /\[[a-z]+\]/gi.test(string);
 const isCatchAll = string => string.includes('[...]');
 
 const HTTP_METHODS = ['get', 'post', 'put', 'delete'];
+/**
+ *
+ * @returns {Promise<[{ method: ('get'|'post'|'put'|'delete'), route: string, handler: function, middlewares: function[] }]>}
+ */
 export const generateControllers = async () => {
 	const fileListPromises = [fastGlob('controllers/**/*.js', { absolute: true }), fastGlob('middlewares/**/*.js', { absolute: true })];
 	const [controllersFileList, middlewaresFileList] = await Promise.all(fileListPromises);
