@@ -7,7 +7,7 @@ The fasest way to build REST API
 
 ![Flinching](https://media.giphy.com/media/TpXiNmXLdpOaEENYci/giphy.gif)
 
-# Roadmap
+# TODO
 
 - [ ] Support multiple http libraries
   - [x] express
@@ -19,3 +19,4 @@ The fasest way to build REST API
 - [ ] Allow to manipulate the response (in the controller wrapper)
 - [ ] Support cookies
 - [x] Allow to attach stuff to the context and pass in the request
+- [x] Add warn on route collision

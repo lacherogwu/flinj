@@ -3,6 +3,7 @@ import fastGlob from 'fast-glob';
 import { importFiles } from './utils/promises.js';
 import { attachMiddlewares, initMiddlewares } from './middlewares.js';
 import { createCtx } from './utils/request.js';
+import { checkRouteCollision } from './checks.js';
 
 // TODO: allow to manipulate this (interceptors)
 const controllerWrapper = handler => {
@@ -41,6 +42,7 @@ const fixRouteSlashes = route => {
 	return route;
 };
 
+const mappedControllers = controllers => controllers.map(({ method, route, handler, middlewares }) => ({ method, route, handler, middlewares }));
 const HTTP_METHODS = ['get', 'post', 'put', 'delete'];
 /**
  *
@@ -94,6 +96,7 @@ export const generateControllers = async (options = {}) => {
 				route: fixRouteSlashes(route + name),
 				handler: controllerWrapper(value),
 				middlewares,
+				file,
 			};
 			acc.push(object);
 		});
@@ -101,5 +104,7 @@ export const generateControllers = async (options = {}) => {
 		return acc;
 	}, []);
 
-	return controllers;
+	checkRouteCollision(controllers);
+
+	return mappedControllers(controllers);
 };
