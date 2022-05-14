@@ -33,12 +33,24 @@ const hasDynamicArg = string => /\[[a-z]+\]/gi.test(string);
 /** @param {string} string */
 const isCatchAll = string => string.includes('[...]');
 
+/** @param {string} route */
+const fixRouteSlashes = route => {
+	if (!route.startsWith('/')) route = `/${route}`;
+	if (route.length > 1 && route.endsWith('/')) route = route.slice(0, -1);
+
+	return route;
+};
+
 const HTTP_METHODS = ['get', 'post', 'put', 'delete'];
 /**
  *
+ * @param {Object} options
+ * @param {string} options.prefix
  * @returns {Promise<[{ method: ('get'|'post'|'put'|'delete'), route: string, handler: function, middlewares: function[] }]>}
  */
-export const generateControllers = async () => {
+export const generateControllers = async (options = {}) => {
+	const { prefix = '' } = options;
+
 	const fileListPromises = [fastGlob('controllers/**/*.js', { absolute: true }), fastGlob('middlewares/**/*.js', { absolute: true })];
 	const [controllersFileList, middlewaresFileList] = await Promise.all(fileListPromises);
 
@@ -49,17 +61,17 @@ export const generateControllers = async () => {
 
 	const controllers = controllersFileList.reduce((acc, file, i) => {
 		const controllerFunctions = controllersResolvedFiles[i];
-		let [, route] = file.split('controllers/');
+		let [, route] = file.split('controllers');
 		route = route.replace('.js', '');
 
-		if (route.endsWith('index')) route = route.slice(0, -6);
+		if (route.endsWith('index')) route = route.slice(0, -5);
 		if (hasDynamicArg(route)) {
 			route = route.replace(/\[/g, ':').replace(/\]/g, '');
 		}
 		if (isCatchAll(route)) {
 			route = route.replace('[...]', '*');
 		}
-		if (!route.startsWith('/')) route = `/${route}`;
+		route = prefix + route;
 
 		Object.entries(controllerFunctions).forEach(([key, value]) => {
 			let [method, name = ''] = key.split('_');
@@ -71,7 +83,7 @@ export const generateControllers = async () => {
 			}
 
 			if (name) {
-				name = route.endsWith('/') ? `${name}` : `/${name}`;
+				name = route.endsWith('/') ? name : `/${name}`;
 			}
 
 			const { middlewares: middlewaresList } = controllerFunctions;
@@ -79,7 +91,7 @@ export const generateControllers = async () => {
 
 			const object = {
 				method,
-				route: route + name,
+				route: fixRouteSlashes(route + name),
 				handler: controllerWrapper(value),
 				middlewares,
 			};

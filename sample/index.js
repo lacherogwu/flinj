@@ -3,9 +3,7 @@ import { generateControllers, notFoundErrorHandler, globalErrorHandler, AppError
 
 const app = express();
 
-const controllers = await generateControllers();
-
-console.log(controllers);
+const controllers = await generateControllers({ prefix: '/apis' });
 
 controllers.forEach(item => {
 	const { method, route, handler, middlewares } = item;
