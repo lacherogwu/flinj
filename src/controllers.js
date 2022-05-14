@@ -49,28 +49,37 @@ export const generateControllers = async () => {
 
 	const controllers = controllersFileList.reduce((acc, file, i) => {
 		const controllerFunctions = controllersResolvedFiles[i];
-		let [, route] = file.split('controllers');
+		let [, route] = file.split('controllers/');
 		route = route.replace('.js', '');
-		if (route.endsWith('index')) route = route.slice(0, -5);
+
+		if (route.endsWith('index')) route = route.slice(0, -6);
 		if (hasDynamicArg(route)) {
 			route = route.replace(/\[/g, ':').replace(/\]/g, '');
 		}
 		if (isCatchAll(route)) {
 			route = route.replace('[...]', '*');
 		}
+		if (!route.startsWith('/')) route = `/${route}`;
 
 		Object.entries(controllerFunctions).forEach(([key, value]) => {
-			let method = key;
+			let [method, name = ''] = key.split('_');
 			if (method === 'del') method = 'delete';
 			if (!HTTP_METHODS.includes(method)) return;
 
+			if (name.includes('$')) {
+				name = name.replace('$', ':');
+			}
+
+			if (name) {
+				name = route.endsWith('/') ? `${name}` : `/${name}`;
+			}
+
 			const { middlewares: middlewaresList } = controllerFunctions;
-			// TODO: remove → console.log(`${method.toUpperCase()} ${route}`);
 			const middlewares = attachMiddlewares(middlewaresList, key);
 
 			const object = {
 				method,
-				route,
+				route: route + name,
 				handler: controllerWrapper(value),
 				middlewares,
 			};

@@ -5,6 +5,8 @@ const app = express();
 
 const controllers = await generateControllers();
 
+console.log(controllers);
+
 controllers.forEach(item => {
 	const { method, route, handler, middlewares } = item;
 	app[method](route, ...middlewares, handler);
