@@ -1,6 +1,6 @@
 {
 	"name": "flinj",
-	"version": "0.4.0",
+	"version": "0.5.0",
 	"description": "Enhanced REST API library",
 	"main": "lib/main.mjs",
 	"files": [
