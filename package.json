@@ -2,19 +2,22 @@
 	"name": "flinj",
 	"version": "0.5.0",
 	"description": "Enhanced REST API library",
-	"main": "lib/main.mjs",
-	"files": [
-		"lib/*"
-	],
+	"private": false,
+	"module": "./src/index.js",
 	"exports": {
-		"import": "./lib/main.mjs",
-		"require": "./lib/main.cjs"
+		".": {
+			"import": "./src/index.js"
+		}
 	},
+	"types": "types/index.d.ts",
 	"scripts": {
-		"prebuild": "rm -rf lib",
-		"build": "rollup -c",
-		"prepublishOnly": "npm run build"
+		"create-clean-routes-decleration-file": "echo export interface Routes {} > types/ROUTES.d.ts",
+		"prepublishOnly": "npm create-clean-routes-decleration-file"
 	},
+	"files": [
+		"src",
+		"types"
+	],
 	"keywords": [
 		"express",
 		"framework",
@@ -42,10 +45,9 @@
 		"access": "public"
 	},
 	"dependencies": {
-		"chalk": "^5.0.1",
-		"fast-glob": "^3.2.11"
-	},
-	"devDependencies": {
-		"rollup": "^2.72.0"
+		"cookie-parser": "^1.4.6",
+		"express": "^4.18.1",
+		"fast-glob": "^3.2.12",
+		"helmet": "^6.0.0"
 	}
 }
