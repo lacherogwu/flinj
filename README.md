@@ -11,11 +11,14 @@ The fasest way to build REST API
 
 ```js
 import { createApp } from 'flinj';
+// import morgan from 'morgan';
 
 const app = await createApp({
 	controllersDir: '/path/to/controllers',
 	middlewaresDir: '/path/to/middlewares',
 });
+
+// app.addMiddleware(morgan('tiny'));
 
 app.start(3000);
 ```
