@@ -70,21 +70,41 @@ function createMiddlewaresMap(middlewares) {
 	return middlewaresMap;
 }
 
-export const createCtx = req => {
+/**
+ *
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @returns
+ */
+function createCtx(req, res) {
 	if (!req.stuff) {
 		req.stuff = {};
 	}
 	const { body, params, query, cookies, _parsedUrl, stuff } = req;
 	// TODO: think about adding METHOD
 
-	return { body, url: _parsedUrl, params, query, cookies, stuff };
-};
+	/**
+	 *
+	 * @param {string} name
+	 * @param {string} value
+	 * @param {express.CookieOptions} options
+	 */
+	function setCookie(name, value, options) {
+		res.cookie(name, value, options);
+	}
+
+	function setHeaders(headers) {
+		res.set(headers);
+	}
+
+	return { body, url: _parsedUrl, params, query, cookies, stuff, setCookie, setHeaders };
+}
 
 function controllerWrapper(handler) {
 	return async (req, res, next) => {
 		try {
 			let status = 200;
-			const response = await handler(createCtx(req));
+			const response = await handler(createCtx(req, res));
 			if (response == null) status = 204;
 
 			return res.status(status).json(response);
@@ -97,7 +117,7 @@ function controllerWrapper(handler) {
 function middlewareWrapper(handler) {
 	return async (req, res, next) => {
 		try {
-			await handler(createCtx(req));
+			await handler(createCtx(req, res));
 			next();
 		} catch (err) {
 			next(err);

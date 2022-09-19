@@ -27,24 +27,30 @@ app.start(3000);
 // /path/to/controllers/auth.js
 
 export function GET(ctx) {
-	const { query } = ctx;
-	const { firstName, lastName } = query;
+	const { firstName, lastName } = ctx.query;
 
 	return { message: `Hello ${firstName} ${lastName}!` };
 }
 
 export async function POST(ctx) {
-	const { body } = ctx;
-	const { email, password } = body;
+	const { email, password } = ctx.body;
 
 	await db.createUser({ email, password });
 }
 
-export function DELETE_$id(ctx){
-  const { params} = ctx
-  const { id } = params
+export async function POST_login(ctx) {
+	const { email, password } = ctx.body;
 
-  await db.deleteUser(id)
+	const user = await login(email, password);
+	ctx.setCookie('jwt', 'eyTOKEN', { httpOnly: true, secure: true, maxAge: 1000 * 60 * 60 * 24 * 3 });
+
+	return user;
+}
+
+export async function DELETE_$id(ctx) {
+	const { id } = ctx.params;
+
+	await db.deleteUser(id);
 }
 ```
 
@@ -57,6 +63,9 @@ export default async ctx => {
 	const { cookies } = ctx;
 
 	const token = cookies?.jwt;
+	ctx.setHeaders({
+		'x-custom-header': 'x-custom',
+	});
 
 	try {
 		const tokenResponse = await validateToken(token);
