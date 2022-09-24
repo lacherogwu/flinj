@@ -3,20 +3,12 @@
 	"version": "2.0.0-next.1",
 	"description": "Enhanced REST API library",
 	"private": false,
-	"module": "./src/index.js",
-	"exports": {
-		"./package.json": "./package.json",
-		".": {
-			"import": "./src/index.js"
-		}
-	},
-	"types": "types/index.d.ts",
+	"main": "./src/index.js",
 	"scripts": {
 		"prepublishOnly": "tsc"
 	},
 	"files": [
-		"src",
-		"types"
+		"src"
 	],
 	"keywords": [
 		"express",

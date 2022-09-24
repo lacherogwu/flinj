@@ -190,7 +190,7 @@ async function generateControllersFileStructure(fileList) {
 	const promises = fileList.map(path => fs.readFile(path, 'utf-8'));
 	const filesContent = await Promise.all(promises);
 
-	const regex = /^export function ((GET|POST|PUT|PATCH|DELETE)[_$\w]*?)\([.\w$,[\]{}:=\s]*\)*\s*{/gm;
+	const regex = /^export function ((GET|POST|PUT|PATCH|DELETE)(_[$\w]*)?)\([.\w$,[\]{}:=\s]*\)*\s*{/gm;
 	fileList.forEach((path, i) => {
 		const key = path.slice(path.lastIndexOf('/') + 1, -3);
 		output[key] = {};
