@@ -1,5 +1,5 @@
-import { resolve as pathResolve } from 'path';
-import { URL } from 'url';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import fastGlob from 'fast-glob';
 import fs from 'fs/promises';
@@ -7,35 +7,68 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import AppError from './AppError.js';
 
+/**
+ * @typedef {{ start: (port: number) => void, addMiddleware: (...middlewares: function[]) => CreateApp }} CreateApp
+ * @typedef {(keyof (typeof import('../.flinj/routes.json')))[]} Routes
+ * @typedef {(name: string, value: string, options: express.CookieOptions) => void} SetCookie
+ * @typedef {(object: ObjectWithAnyStrings) => void} SetHeaders
+ * @typedef {Object.<string, string>} ObjectWithAnyStrings
+ * @typedef {Object.<string, any>} ObjectWithAnyValues
+ * @typedef {(ctx: { body: ObjectWithAnyValues, url: URL, params: ObjectWithAnyStrings, query: ObjectWithAnyStrings, cookies: ObjectWithAnyStrings, stuff: ObjectWithAnyValues, setCookie: SetCookie, setHeaders: SetHeaders }) => any} Ctx
+ */
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+function getValue(object, key) {
+	const keyParts = key.split('.');
+
+	let value = object;
+	for (const key of keyParts) {
+		if (value === undefined || value === null) return;
+		value = value[key];
+	}
+
+	return value;
+}
+
 function getPath(...paths) {
 	const rootDir = process.cwd();
-	return paths.map(path => pathResolve(rootDir, path));
+	return paths.map(path => join(rootDir, path));
 }
 
 function parseRoutesObject(input, result = { '*': 'string' }, path) {
 	for (const key in input) {
 		const value = input[key];
-		if (typeof value === 'object') {
+		if (value === null) {
+			result[`${path}/${key}`] = 'string';
+		} else if (typeof value === 'object') {
 			result[`${key}/*`] = 'string';
 			parseRoutesObject(value, result, key);
-		} else if (typeof value === 'function') {
-			result[`${path}/${value.name}`] = 'string';
 		}
 	}
 
 	return result;
 }
 
-async function generateRoutesInterface(input) {
+async function createFolder(path) {
+	return fs.mkdir(path);
+}
+
+async function isFolderExists(path) {
+	path = join(__dirname, path);
+	return fs
+		.stat(path)
+		.then(() => true)
+		.catch(() => false);
+}
+
+async function generateRoutesJson(input) {
 	const object = parseRoutesObject(input);
-	const interfaceString = Object.entries(object)
-		.map(([key, value]) => `'${key}': ${value};`)
-		.join(' ');
-
-	const rootDir = new URL('../types/', import.meta.url).pathname;
-
-	let data = `export interface Routes { ${interfaceString} }`;
-	await fs.writeFile(rootDir + 'ROUTES.d.ts', data);
+	const outputPath = join(__dirname, '../.flinj/routes.json');
+	if (!(await isFolderExists('../.flinj'))) {
+		await createFolder('../.flinj');
+	}
+	await fs.writeFile(outputPath, JSON.stringify(object));
 }
 
 async function resolveFiles(...paths) {
@@ -83,16 +116,12 @@ function createCtx(req, res) {
 	const { body, params, query, cookies, _parsedUrl, stuff } = req;
 	// TODO: think about adding METHOD
 
-	/**
-	 *
-	 * @param {string} name
-	 * @param {string} value
-	 * @param {express.CookieOptions} options
-	 */
+	/** @type {SetCookie} */
 	function setCookie(name, value, options) {
 		res.cookie(name, value, options);
 	}
 
+	/** @type {SetHeaders} */
 	function setHeaders(headers) {
 		res.set(headers);
 	}
@@ -125,15 +154,17 @@ function middlewareWrapper(handler) {
 	};
 }
 
-function generateRoutes({ controllers, middlewares }) {
+function generateRoutes({ controllersFileStructure, controllers, middlewares }) {
 	const middlewaresMap = createMiddlewaresMap(middlewares);
 
 	const routes = [];
-	Object.entries(controllers).forEach(([rootPath, controllers]) => {
-		Object.entries(controllers).forEach(([controllerKey, handler]) => {
+	// TODO: needs refactor
+	Object.entries(controllersFileStructure).forEach(([rootPath, controllersObject]) => {
+		Object.entries(controllersObject).forEach(([controllerKey]) => {
 			const [_method, _name = ''] = controllerKey.split('_');
 			const method = _method.toLocaleLowerCase();
 			const name = _name?.replace('$', ':');
+			const handler = getValue(controllers, `${rootPath}.${controllerKey}`);
 
 			const route = '/' + [rootPath, name].filter(Boolean).join('/');
 
@@ -154,16 +185,49 @@ function generateRoutes({ controllers, middlewares }) {
 	return routes;
 }
 
-export async function createApp(options = {}) {
+async function generateControllersFileStructure(fileList) {
+	const output = {};
+	const promises = fileList.map(path => fs.readFile(path, 'utf-8'));
+	const filesContent = await Promise.all(promises);
+
+	const regex = /^export function ((GET|POST|PUT|PATCH|DELETE)[_$\w]*?)\([.\w$,[\]{}:=\s]*\)*\s*{/gm;
+	fileList.forEach((path, i) => {
+		const key = path.slice(path.lastIndexOf('/') + 1, -3);
+		output[key] = {};
+
+		const content = filesContent[i];
+		let match;
+
+		while ((match = regex.exec(content))) {
+			const functionName = match[1];
+			output[key][functionName] = null;
+		}
+	});
+
+	return output;
+}
+
+/**
+ *
+ * @param {{ controllersDir: string, middlewaresDir: string, debug: boolean }} options
+ * @returns {Promise<CreateApp>}
+ */
+export async function createApp(
+	options = {
+		debug: false,
+	}
+) {
 	let { controllersDir, middlewaresDir } = options;
 	[controllersDir, middlewaresDir] = getPath(controllersDir, middlewaresDir);
 
+	// TODO: support multiple folder nesting
 	const [controllerFileList, middlewareFileList] = await getFileList(controllersDir, middlewaresDir);
-	// TODO: read the file as text instead of js module, to keep the function position correct
 	const [controllers, middlewares] = await resolveFiles(controllerFileList, middlewareFileList);
-	generateRoutesInterface(controllers);
 
-	const routes = generateRoutes({ controllers, middlewares });
+	const controllersFileStructure = await generateControllersFileStructure(controllerFileList);
+	generateRoutesJson(controllersFileStructure);
+
+	const routes = generateRoutes({ controllersFileStructure, controllers, middlewares });
 	const app = express();
 
 	return {
@@ -173,17 +237,22 @@ export async function createApp(options = {}) {
 		},
 		start(port) {
 			this.addMiddleware(...getDefaultMiddlewares());
-			setRoutes(routes);
+			registerRoutes(routes);
 			applyErrorHandlers();
 			app.listen(port, () => console.log(`listening at http://localhost:${port}`));
 		},
 	};
 
-	function setRoutes(routes) {
-		routes.forEach(item => {
-			const { method, route, middlewares, handler } = item;
-			app[method](route, ...middlewares, handler);
-		});
+	function registerRoute({ method, route, middlewares, handler }) {
+		if (options.debug) {
+			// TODO: show the registered middlewares somehow
+			console.log(`${method.toUpperCase()} ${route}`);
+		}
+		app[method](route, ...middlewares, handler);
+	}
+
+	function registerRoutes(routes) {
+		routes.forEach(registerRoute);
 	}
 
 	function applyErrorHandlers() {
@@ -212,10 +281,12 @@ function globalErrorHandler(err, req, res, next) {
 	return res.status(status).json({ message });
 }
 
-export function useMiddleware(...routes) {
-	return routes;
-}
-
+/**
+ *
+ * @param {number} status
+ * @param {string} body
+ * @returns {AppError}
+ */
 export function error(status, body) {
 	return new AppError(status, body);
 }

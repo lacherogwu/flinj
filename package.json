@@ -3,20 +3,13 @@
 	"version": "1.0.0-next.2",
 	"description": "Enhanced REST API library",
 	"private": false,
-	"module": "./src/index.js",
-	"exports": {
-		".": {
-			"import": "./src/index.js"
-		}
-	},
-	"types": "types/index.d.ts",
+	"main": "./src/index.js",
 	"scripts": {
 		"create-clean-routes-decleration-file": "echo export interface Routes {} > types/ROUTES.d.ts",
 		"prepublishOnly": "npm run create-clean-routes-decleration-file"
 	},
 	"files": [
-		"src",
-		"types"
+		"src"
 	],
 	"keywords": [
 		"express",

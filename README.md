@@ -16,6 +16,7 @@ import { createApp } from 'flinj';
 const app = await createApp({
 	controllersDir: '/path/to/controllers',
 	middlewaresDir: '/path/to/middlewares',
+	debug: true, // to see which routes was registered
 });
 
 // app.addMiddleware(morgan('tiny'));
@@ -57,7 +58,7 @@ export async function DELETE_$id(ctx) {
 ```js
 // /path/to/middlewares/auth.js
 
-import { useMiddleware, error } from 'flinj';
+import { error } from 'flinj';
 
 export default async ctx => {
 	const { cookies } = ctx;
@@ -77,5 +78,6 @@ export default async ctx => {
 	}
 };
 
-export const use = useMiddleware('auth/*');
+/** @type {import('flinj').Routes} */
+export const use = ['auth/*'];
 ```
