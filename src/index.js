@@ -9,7 +9,7 @@ import AppError from './AppError.js';
 
 /**
  * @typedef {{ start: (port: number) => void, addMiddleware: (...middlewares: function[]) => CreateApp }} CreateApp
- * @typedef {(keyof (typeof import('../.flinj/routes.json')))[]} Routes
+ * @typedef {(keyof typeof import('../.flinj/routes.js').default)[]} Routes
  * @typedef {(name: string, value: string, options: express.CookieOptions) => void} SetCookie
  * @typedef {(object: ObjectWithAnyStrings) => void} SetHeaders
  * @typedef {Object.<string, string>} ObjectWithAnyStrings
@@ -51,11 +51,10 @@ function parseRoutesObject(input, result = { '*': 'string' }, path) {
 }
 
 async function createFolder(path) {
-	return fs.mkdir(path);
+	return fs.mkdir(path).catch(() => {});
 }
 
 async function isFolderExists(path) {
-	path = join(__dirname, path);
 	return fs
 		.stat(path)
 		.then(() => true)
@@ -64,11 +63,12 @@ async function isFolderExists(path) {
 
 async function generateRoutesJson(input) {
 	const object = parseRoutesObject(input);
-	const outputPath = join(__dirname, '../.flinj/routes.json');
-	if (!(await isFolderExists('../.flinj'))) {
-		await createFolder('../.flinj');
+	const hiddenFolder = join(__dirname, '../.flinj');
+	if (!(await isFolderExists(hiddenFolder))) {
+		await createFolder(hiddenFolder);
 	}
-	await fs.writeFile(outputPath, JSON.stringify(object));
+	const data = `export default ${JSON.stringify(object)}`;
+	await fs.writeFile(hiddenFolder + '/routes.js', data);
 }
 
 async function resolveFiles(...paths) {
