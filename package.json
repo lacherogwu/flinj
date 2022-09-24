@@ -4,10 +4,7 @@
 	"description": "Enhanced REST API library",
 	"private": false,
 	"main": "./src/index.js",
-	"scripts": {
-		"create-clean-routes-decleration-file": "echo export interface Routes {} > types/ROUTES.d.ts",
-		"prepublishOnly": "npm run create-clean-routes-decleration-file"
-	},
+	"scripts": {},
 	"files": [
 		"src"
 	],
