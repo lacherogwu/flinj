@@ -145,7 +145,7 @@ function generateRoutes({ controllers, middlewares }) {
 			routes.push({
 				method,
 				route,
-				middlewares, // TODO: wrap middlewares
+				middlewares,
 				handler: controllerWrapper(handler),
 			});
 		});
@@ -159,6 +159,7 @@ export async function createApp(options = {}) {
 	[controllersDir, middlewaresDir] = getPath(controllersDir, middlewaresDir);
 
 	const [controllerFileList, middlewareFileList] = await getFileList(controllersDir, middlewaresDir);
+	// TODO: read the file as text instead of js module, to keep the function position correct
 	const [controllers, middlewares] = await resolveFiles(controllerFileList, middlewareFileList);
 	generateRoutesInterface(controllers);
 
