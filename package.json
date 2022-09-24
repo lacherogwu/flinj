@@ -1,6 +1,6 @@
 {
 	"name": "flinj",
-	"version": "2.0.0-next.1",
+	"version": "2.0.0-next.2",
 	"description": "Enhanced REST API library",
 	"private": false,
 	"main": "./src/index.js",
