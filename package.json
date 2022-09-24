@@ -4,9 +4,7 @@
 	"description": "Enhanced REST API library",
 	"private": false,
 	"main": "./src/index.js",
-	"scripts": {
-		"prepublishOnly": "tsc"
-	},
+	"scripts": {},
 	"files": [
 		"src"
 	],
