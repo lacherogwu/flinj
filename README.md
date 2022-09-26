@@ -7,7 +7,13 @@ The fasest way to build REST API
 
 ![Flinching](https://media.giphy.com/media/TpXiNmXLdpOaEENYci/giphy.gif)
 
-# API
+## Installation
+
+```bash
+npm i flinj
+```
+
+## Usage
 
 ```js
 import { createApp } from 'flinj';
@@ -27,18 +33,21 @@ app.start(3000);
 ```js
 // /path/to/controllers/auth.js
 
+/** @type {import('flinj').Controller} */
 export function GET(ctx) {
 	const { firstName, lastName } = ctx.query;
 
 	return { message: `Hello ${firstName} ${lastName}!` };
 }
 
+/** @type {import('flinj').Controller} */
 export async function POST(ctx) {
 	const { email, password } = ctx.body;
 
 	await db.createUser({ email, password });
 }
 
+/** @type {import('flinj').Controller} */
 export async function POST_login(ctx) {
 	const { email, password } = ctx.body;
 
@@ -48,6 +57,7 @@ export async function POST_login(ctx) {
 	return user;
 }
 
+/** @type {import('flinj').Controller} */
 export async function DELETE_$id(ctx) {
 	const { id } = ctx.params;
 
@@ -60,6 +70,7 @@ export async function DELETE_$id(ctx) {
 
 import { error } from 'flinj';
 
+/** @type {import('flinj').Controller} */
 export default async ctx => {
 	const { cookies } = ctx;
 
@@ -81,3 +92,7 @@ export default async ctx => {
 /** @type {import('flinj').Routes} */
 export const use = ['auth/*'];
 ```
+
+## TOOD:
+
+- [ ] add tests

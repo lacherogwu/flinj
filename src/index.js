@@ -1,5 +1,4 @@
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 import express from 'express';
 import fastGlob from 'fast-glob';
 import fs from 'fs/promises';
@@ -9,15 +8,13 @@ import AppError from './AppError.js';
 
 /**
  * @typedef {{ start: (port: number) => void, addMiddleware: (...middlewares: function[]) => CreateApp }} CreateApp
- * @typedef {(keyof typeof import('../.flinj/routes.js').default)[]} Routes
+ * @typedef {import('../../../.flinj/route').Route[]} Routes
  * @typedef {(name: string, value: string, options: express.CookieOptions) => void} SetCookie
  * @typedef {(object: ObjectWithAnyStrings) => void} SetHeaders
  * @typedef {Object.<string, string>} ObjectWithAnyStrings
  * @typedef {Object.<string, any>} ObjectWithAnyValues
- * @typedef {(ctx: { body: ObjectWithAnyValues, url: URL, params: ObjectWithAnyStrings, query: ObjectWithAnyStrings, cookies: ObjectWithAnyStrings, stuff: ObjectWithAnyValues, setCookie: SetCookie, setHeaders: SetHeaders }) => any} Ctx
+ * @typedef {(ctx: { body: ObjectWithAnyValues, url: URL, params: ObjectWithAnyStrings, query: ObjectWithAnyStrings, cookies: ObjectWithAnyStrings, stuff: ObjectWithAnyValues, setCookie: SetCookie, setHeaders: SetHeaders }) => any} Controller
  */
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function getValue(object, key) {
 	const keyParts = key.split('.');
@@ -61,14 +58,18 @@ async function isFolderExists(path) {
 		.catch(() => false);
 }
 
-async function generateRoutesJson(input) {
+async function generateRouteType(input) {
 	const object = parseRoutesObject(input);
-	const hiddenFolder = join(__dirname, '../.flinj');
+	const hiddenFolder = './.flinj';
 	if (!(await isFolderExists(hiddenFolder))) {
 		await createFolder(hiddenFolder);
 	}
-	const data = `export default ${JSON.stringify(object)}`;
-	await fs.writeFile(hiddenFolder + '/routes.js', data);
+
+	const unionType = Object.keys(object)
+		.map(item => `'${item}'`)
+		.join('|');
+	const data = `export type Route = ${unionType};`;
+	await fs.writeFile(hiddenFolder + '/route.d.ts', data);
 }
 
 async function resolveFiles(...paths) {
@@ -226,7 +227,7 @@ export async function createApp(
 	const [controllers, middlewares] = await resolveFiles(controllerFileList, middlewareFileList);
 
 	const controllersFileStructure = await generateControllersFileStructure(controllerFileList);
-	generateRoutesJson(controllersFileStructure);
+	generateRouteType(controllersFileStructure);
 
 	const routes = generateRoutes({ controllersFileStructure, controllers, middlewares });
 	const app = express();
