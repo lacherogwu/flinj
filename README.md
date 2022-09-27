@@ -1,7 +1,7 @@
 # Flinj
 
-| :exclamation: This is an experimental project. You definitely shouldn't try and use it, yet. |
-| -------------------------------------------------------------------------------------------- |
+| :construction: This project is still in development. You should use it with caution. |
+| ------------------------------------------------------------------------------------ |
 
 The fasest way to build REST API
 
